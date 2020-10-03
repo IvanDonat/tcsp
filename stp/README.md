@@ -3,7 +3,7 @@
 A STP is a TCSP in which all constraints specify a single interval.
 
 In such a network, each edge `i -> j` is labeled by an interval `[ a_{ij} , b_{ij} ]`,
-which represents the constraint `a_{ij} <= X_j - X-i <= b_{ij}`.
+which represents the constraint `a_{ij} <= X_j - X_i <= b_{ij}`.
 
 We associate a STP with a `distance graph` `(V, E_d)`, where `V` is the same as the nodes
 in the constraint network, and each edge is labelled by a weight `a_{ij}`, representing
