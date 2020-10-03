@@ -18,6 +18,15 @@ void print_graph(const Graph& graph) {
     } 
 }
 
+void print_minimal_network(const Graph& d_graph) {
+    for(int i = 0; i < d_graph.num_of_nodes; i++) {
+        for(int j = 0; j < d_graph.num_of_nodes; j++) {
+            std::cout << "[ " << -d_graph.edges[j][i] << " , " << d_graph.edges[i][j] << " ]   ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 std::vector< std::vector<int> > inf_but_diagonal(int n) {
     std::vector< std::vector<int> > ret;
     ret.resize(n);
@@ -72,12 +81,30 @@ Graph generate_d_graph(const Graph& graph) {
     return {N, E};
 }
 
+bool has_d_graph_negative_cycle(const Graph& d_graph) {
+    for(int i = 0; i < d_graph.num_of_nodes; i++) {
+        if(d_graph.edges[i][i] < 0)
+            return true;    
+    }
+    return false;
+}
+
 int main() {
     Graph g = create_graph_from_stdin();
+
+    std::cout << std::endl << "Adjacency Matrix" << std::endl;
     print_graph(g);
     
+    std::cout << std::endl << "Distance Graph" << std::endl;
     Graph d_graph = generate_d_graph(g);
     print_graph(d_graph);
 
+    if(has_d_graph_negative_cycle(d_graph)) {
+        std::cout << "Problem is unsatisfiable" << std::endl;
+        return 1;
+    }
+
+    std::cout << std::endl << "Minimal Network Representation" << std::endl;
+    print_minimal_network(d_graph);
     return 0;
 }
