@@ -27,6 +27,18 @@ void print_minimal_network(const Graph& d_graph) {
     }
 }
 
+void print_earliest_possible_time_solution(const Graph& d_graph) {
+    for(int i = 1; i < d_graph.num_of_nodes; i++) {
+        std::cout << i << " : " << -d_graph.edges[i][0] << std::endl;
+    }
+}
+
+void print_latest_possible_time_solution(const Graph& d_graph) {
+    for(int i = 1; i < d_graph.num_of_nodes; i++) {
+        std::cout << i << " : " << d_graph.edges[0][i] << std::endl;
+    }
+}
+
 std::vector< std::vector<int> > inf_but_diagonal(int n) {
     std::vector< std::vector<int> > ret;
     ret.resize(n);
@@ -106,5 +118,12 @@ int main() {
 
     std::cout << std::endl << "Minimal Network Representation" << std::endl;
     print_minimal_network(d_graph);
+
+    std::cout << std::endl << "Earliest Possible Time Solution:" << std::endl;
+    print_earliest_possible_time_solution(d_graph);
+
+    std::cout << std::endl << "Latest Possible Time Solution:" << std::endl;
+    print_latest_possible_time_solution(d_graph);
+
     return 0;
 }
