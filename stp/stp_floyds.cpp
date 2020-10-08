@@ -59,8 +59,8 @@ Graph create_graph_from_stdin() {
     int num_of_edges;
     std::cin >> num_of_edges;
     while(num_of_edges--) {
-        int i, j, a_ij, b_ij;
-        std::cin >> i >> j >> a_ij >> b_ij;
+        int i, j, n, a_ij, b_ij;
+        std::cin >> i >> j >> n >> a_ij >> b_ij;
         
         g.edges[i][j] = b_ij;
         g.edges[j][i] = -a_ij;

@@ -134,17 +134,11 @@ CSP load_tcsp_from_stdin() {
 void back(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector<Interval>> &C); // declare
 
 void forward(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector<Interval>> &C) {
-    std::cout << "forward: ";
-    for(Interval i : intervals)
-        std::cout << "[" << i.l << "," << i.r << "] ";
-    std::cout << std::endl;
-
     if(intervals.size() == csp.edges.size()) {
         // TODO union solve with M
         Graph d_graph = generate_d_graph(csp.graph);
         if(!has_d_graph_negative_cycle(d_graph)) {
             std::cout << "POG" << std::endl;
-            print_graph(csp.graph);
             print_earliest_possible_time(d_graph);
         }
 
@@ -181,11 +175,6 @@ void forward(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector
 }
 
 void back(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector<Interval>> &C) {
-    std::cout << "back: ";
-    for(Interval i : intervals)
-        std::cout << "[" << i.l << "," << i.r << "] ";
-    std::cout << std::endl;
-
     int i = intervals.size() - 1;
     if(i == 0) return;
     if(i < C.size() && C[i].size()) {

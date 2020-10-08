@@ -17,4 +17,4 @@ First line should contain the number of nodes (we will label them `0 <= i < n`).
 For simplicity we assume `X_0 = 0`.
 
 The second line should contain the number of edges.
-Each following line should be in the format `i j a_{ij} b_{ij}`.
+Each following line should be in the format `i j 1 a_{ij} b_{ij}`.
