@@ -20,6 +20,12 @@ void print_graph(const Graph& graph) {
     } 
 }
 
+void print_earliest_possible_time(const Graph &d_graph) {
+    for(int i = 0; i < d_graph.num_of_nodes; i++) {
+        std::cout << i << " " << -d_graph.edges[i][0] << std::endl;
+    }
+}
+
 std::vector< std::vector<int> > inf_but_diagonal(int n) {
     std::vector< std::vector<int> > ret;
     ret.resize(n);
@@ -125,10 +131,6 @@ CSP load_tcsp_from_stdin() {
     return csp;
 }
 
-// mod:
-// CSP contains Graph graph
-// this graph will be constructed/deconstructed as intervals are selected
-// and passed onto solver
 void back(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector<Interval>> &C); // declare
 
 void forward(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector<Interval>> &C) {
@@ -142,7 +144,8 @@ void forward(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector
         Graph d_graph = generate_d_graph(csp.graph);
         if(!has_d_graph_negative_cycle(d_graph)) {
             std::cout << "POG" << std::endl;
-            // this is where we union M
+            print_graph(csp.graph);
+            print_earliest_possible_time(d_graph);
         }
 
         back(csp, intervals, C);
