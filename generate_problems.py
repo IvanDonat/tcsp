@@ -54,8 +54,9 @@ def generate_problem(variables, constraints, intervals):
         diff = X[j] - X[i]
 
         for _ in range(intervals):
+            m = randint(-100, 90)
             T[c]['intervals'].append(
-                (randint(-100, diff), randint(diff, 200))
+                (m, m+10)
             )
     
     from pprint import pprint

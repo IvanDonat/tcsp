@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 def verify_witness(X, C):
+    failed_constraints = []
     for constraint in C:
         i = constraint['i']
         j = constraint['j']
@@ -14,10 +15,9 @@ def verify_witness(X, C):
                 break
         
         if not passed:
-            print(f"Failed on X_i={X[i]}, X_j={X[j]}, {constraint}")
-            return False
+            failed_constraints += [f"X_i={X[i]}, X_j={X[j]} on {constraint}"]
 
-    return True
+    return failed_constraints
 
 if __name__ == '__main__':
     num_nodes, num_constraints = map(int, input().split())
@@ -32,9 +32,12 @@ if __name__ == '__main__':
     
     X = list(map(int, input().split()))
 
-    if verify_witness(X, constraints):
+    failed_constraints = verify_witness(X, constraints)
+    if not failed_constraints:
         print('PASS')
         exit(0)
     else:
         print('FAIL')
+        for f in failed_constraints:
+            print(f)
         exit(1)

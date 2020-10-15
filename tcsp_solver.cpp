@@ -37,9 +37,9 @@ void bettertrack(
     std::vector<Interval> &intervals)
 {
     
-    for(Interval iv : intervals)
-        std::cout << "[" << iv.l << ", " << iv.r << "] ";    
-    std::cout << std::endl;
+    //for(Interval iv : intervals)
+    //    std::cout << "[" << iv.l << ", " << iv.r << "] ";    
+    //std::cout << std::endl;
 
     if(intervals.size() == tcsp.edges.size()) {
         Graph d_graph = generate_d_graph(tcsp.graph);
