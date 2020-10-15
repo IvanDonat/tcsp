@@ -131,92 +131,47 @@ TCSP load_tcsp_from_stdin() {
     return csp;
 }
 
-void pop_candidate_onto_graph(
+void bettertrack(
     TCSP &tcsp,
-    std::vector<Interval> &intervals,
-    std::vector<Interval> &C) 
-{
-    Interval new_I = C[0]; // TODO maybe make this last el. for performance
-    C.erase(C.begin());
-
-    intervals.push_back(new_I);
-    tcsp.graph.edges[new_I.i][new_I.j] = new_I.r;
-    tcsp.graph.edges[new_I.j][new_I.i] = -new_I.l;
-}
-
-void back(
-    TCSP &tcsp,
-    std::vector<Interval> &intervals,
-    std::vector<std::vector<Interval>> &C);
-
-void forward(
-    TCSP &tcsp, 
-    std::vector<Interval> &intervals,
-    std::vector<std::vector<Interval>> &C)
+    std::vector<Interval> &intervals)
 {
     
-
-    std::cout << std::endl;
     for(Interval iv : intervals)
         std::cout << "[" << iv.l << ", " << iv.r << "] ";    
     std::cout << std::endl;
-
 
     if(intervals.size() == tcsp.edges.size()) {
         Graph d_graph = generate_d_graph(tcsp.graph);
         //M = d_graph_union(M, d_graph);
         if(!has_d_graph_negative_cycle(d_graph)) {
-            //std::cout << "POG" << std::endl;
-            //print_earliest_possible_time(d_graph);
+            std::cout << "POG" << std::endl;
+            print_earliest_possible_time(d_graph);
         }
-        back(tcsp, intervals, C);
         return;
     }
 
     int i = intervals.size();
-    C[i] = {};
     for(Interval iv : tcsp.edges[i].intervals) {
-        C[i].push_back(iv);
-        // TODO pop back if not consistent
-    }
-  
-    if(i < C.size() && !C[i].empty()) {
-        pop_candidate_onto_graph(tcsp, intervals, C[i]);
-        forward(tcsp, intervals, C);
-    } else {
-        back(tcsp, intervals, C); 
-    }
-}
+        intervals.push_back(iv);
+        tcsp.graph.edges[iv.i][iv.j] = iv.r;
+        tcsp.graph.edges[iv.j][iv.i] = -iv.l;
+        
+        Graph d_graph = generate_d_graph(tcsp.graph);
+        if(!has_d_graph_negative_cycle(d_graph))
+            bettertrack(tcsp, intervals);
+        else
+            std::cout << "hehe caughtincosn"  << std::endl;
 
-void back(
-    TCSP &tcsp,
-    std::vector<Interval> &intervals,
-    std::vector<std::vector<Interval>> &C)
-{
-    int i = intervals.size();
-    if(i == 0) return; // TODO this was i==0 before, maybe this break things
-    if(i < C.size() && C[i].size()) {
-        pop_candidate_onto_graph(tcsp, intervals, C[i]);
-        forward(tcsp, intervals, C);
-    } else {
-        Interval iv = intervals.back();
         intervals.pop_back();
         tcsp.graph.edges[iv.i][iv.j] = INF;
         tcsp.graph.edges[iv.j][iv.i] = INF;
-        back(tcsp, intervals, C);
     }
 }
 
 int main() {
     TCSP meta = load_tcsp_from_stdin();
-
-    std::vector< std::vector<Interval> > C;
-    C.resize(meta.num_of_edges);
-    
     std::vector<Interval> ivs;
-    forward(meta, ivs, C);
-    
-    std::cout << "cool" << std::endl;
-
+    bettertrack(meta, ivs);
+    std::cout << "finished" << std::endl;
     return 0;
 }
