@@ -89,24 +89,24 @@ bool has_d_graph_negative_cycle(const Graph& d_graph) {
 }
 
 struct Interval {
-    int i, j; // redundant but needed
-    int l, r;
+    int i, j; // i, j are the edges this interval is on
+    int l, r; // l, r are the interval bounds
 };
 
 struct Edge {
-    int i, j;
+    int i, j; // an edge consists of a set of intervals
     std::vector<Interval> intervals;
 };
 
-struct CSP {
+struct TCSP {
     int num_of_nodes, num_of_edges;
     std::vector<Edge> edges;
     Graph graph;
 };
 
 
-CSP load_tcsp_from_stdin() {
-    CSP csp;
+TCSP load_tcsp_from_stdin() {
+    TCSP csp;
 
     std::cin >> csp.num_of_nodes;
     std::cin >> csp.num_of_edges;
@@ -131,74 +131,84 @@ CSP load_tcsp_from_stdin() {
     return csp;
 }
 
-void back(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector<Interval>> &C); // declare
+void pop_candidate_onto_graph(
+    TCSP &tcsp,
+    std::vector<Interval> &intervals,
+    std::vector<Interval> &C) 
+{
+    Interval new_I = C[0]; // TODO maybe make this last el. for performance
+    C.erase(C.begin());
 
-void forward(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector<Interval>> &C) {
-    if(intervals.size() == csp.edges.size()) {
-        // TODO union solve with M
-        Graph d_graph = generate_d_graph(csp.graph);
+    intervals.push_back(new_I);
+    tcsp.graph.edges[new_I.i][new_I.j] = new_I.r;
+    tcsp.graph.edges[new_I.j][new_I.i] = -new_I.l;
+}
+
+void back(
+    TCSP &tcsp,
+    std::vector<Interval> &intervals,
+    std::vector<std::vector<Interval>> &C);
+
+void forward(
+    TCSP &tcsp, 
+    std::vector<Interval> &intervals,
+    std::vector<std::vector<Interval>> &C)
+{
+    
+
+    std::cout << std::endl;
+    for(Interval iv : intervals)
+        std::cout << "[" << iv.l << ", " << iv.r << "] ";    
+    std::cout << std::endl;
+
+
+    if(intervals.size() == tcsp.edges.size()) {
+        Graph d_graph = generate_d_graph(tcsp.graph);
+        //M = d_graph_union(M, d_graph);
         if(!has_d_graph_negative_cycle(d_graph)) {
-            std::cout << "POG" << std::endl;
-            print_earliest_possible_time(d_graph);
+            //std::cout << "POG" << std::endl;
+            //print_earliest_possible_time(d_graph);
         }
-
-        back(csp, intervals, C);
+        back(tcsp, intervals, C);
         return;
     }
 
     int i = intervals.size();
-    
-    if(i < C.size()) {    
-        C[i] = {};
-        for(Interval iv : csp.edges[i].intervals) {
-            C[i].push_back(iv);
-
-            /* for now we dont prune
-            if(* TODO if not consistent / false) {
-                C.pop_back();
-            } */
-        }
+    C[i] = {};
+    for(Interval iv : tcsp.edges[i].intervals) {
+        C[i].push_back(iv);
+        // TODO pop back if not consistent
     }
   
     if(i < C.size() && !C[i].empty()) {
-        Interval new_I = C[i][0];
-        C[i].erase(C[i].begin());
-
-        intervals.push_back(new_I);
-        csp.graph.edges[new_I.i][new_I.j] = new_I.r;
-        csp.graph.edges[new_I.j][new_I.i] = -new_I.l;
-
-        forward(csp, intervals, C);
+        pop_candidate_onto_graph(tcsp, intervals, C[i]);
+        forward(tcsp, intervals, C);
+    } else {
+        back(tcsp, intervals, C); 
     }
-    else
-        back(csp, intervals, C); 
 }
 
-void back(CSP &csp, std::vector<Interval> &intervals, std::vector<std::vector<Interval>> &C) {
-    int i = intervals.size() - 1;
-    if(i == 0) return;
+void back(
+    TCSP &tcsp,
+    std::vector<Interval> &intervals,
+    std::vector<std::vector<Interval>> &C)
+{
+    int i = intervals.size();
+    if(i == 0) return; // TODO this was i==0 before, maybe this break things
     if(i < C.size() && C[i].size()) {
-        Interval new_I = C[i][0];
-        C[i].erase(C[i].begin());
-
-        intervals[i] = new_I;
-
-        csp.graph.edges[new_I.i][new_I.j] = new_I.r;
-        csp.graph.edges[new_I.j][new_I.i] = -new_I.l;
-
-        forward(csp, intervals, C);
-    }
-    else {
+        pop_candidate_onto_graph(tcsp, intervals, C[i]);
+        forward(tcsp, intervals, C);
+    } else {
         Interval iv = intervals.back();
         intervals.pop_back();
-        csp.graph.edges[iv.i][iv.j] = INF;
-        csp.graph.edges[iv.j][iv.i] = INF;
-        back(csp, intervals, C);
+        tcsp.graph.edges[iv.i][iv.j] = INF;
+        tcsp.graph.edges[iv.j][iv.i] = INF;
+        back(tcsp, intervals, C);
     }
 }
 
 int main() {
-    CSP meta = load_tcsp_from_stdin();
+    TCSP meta = load_tcsp_from_stdin();
 
     std::vector< std::vector<Interval> > C;
     C.resize(meta.num_of_edges);
@@ -206,7 +216,6 @@ int main() {
     std::vector<Interval> ivs;
     forward(meta, ivs, C);
     
-
     std::cout << "cool" << std::endl;
 
     return 0;
