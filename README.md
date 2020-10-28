@@ -31,10 +31,10 @@ labelled by a weight `a_{ij}`, representing `X_j - X_i <= a_{ij}`.
 ## Input
 
 The input to the solver program is given by `stdin`.
-First line should contain the number of nodes (we will label them `0 <= i < n`).
+First line should contain the number of nodes (we will label them `0 <= i < n`)
+and the number of edges.
 For simplicity we assume `X_0 = 0`.
 
-The second line should contain the number of edges.
 Each following line should be in the format `i j n (a_{i} b_{i})^n`.
 In other words, the `i -> j`, followed by a number of intervals,
 and then the intervals in order.
