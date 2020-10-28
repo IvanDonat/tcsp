@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import argparse
-from random import randint
+from random import uniform, randint
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -14,58 +14,45 @@ def parse_args():
     )
 
     parser.add_argument(
-        '-c', '--constraints',
-        type=int, default=5,
-        help='number of constraints globally',
+        '-p', '--constraint-probability',
+        type=float, default=0.2,
+        help='probability to generate a constraint between a pair of distinct variables',
     )
 
 
     parser.add_argument(
         '-i', '--intervals',
         type=int, default=1,
-        help='number of intervals per constraint',
+        help='max number of intervals per constraint',
     )
 
     args = parser.parse_args()
     return args
 
-def generate_problem(variables, constraints, intervals):
+def generate_problem(variables, constraint_probability, max_intervals):
     X = [0] + [randint(0, 100) for _ in range(variables-1)]    
-    T = []
+    T_all = []
 
     visited_edges = set()    
 
-    for c in range(constraints):
-        T.append({})
 
-        i = randint(0, variables-1)
-        j = randint(0, variables-1)
-        while (i, j) in visited_edges or (j, i) in visited_edges:
-            i = randint(0, variables-1)
-            j = randint(0, variables-1)
+    for i in range(variables):
+        for j in range(i+1, variables):
+            # i like to link all of them to 0 at least because it makes things easier for no cost
+            if i == 0 or uniform(0, 1) < constraint_probability:
+                T = {}
+                diff = X[j] - X[i]
+                T['i'] = i
+                T['j'] = j
+                T['intervals'] = []
+                for _ in range(randint(1, max_intervals)):
+                    m = randint(-100, 90)
+                    T['intervals'].append( (m, m+10) )
+                T_all.append(T)
 
-        i, j = min(i, j), max(i, j)
-        visited_edges.add( (i, j) )
-
-        T[c]['i'] = i
-        T[c]['j'] = j
-        T[c]['intervals'] = []
-
-        diff = X[j] - X[i]
-
-        for _ in range(intervals):
-            m = randint(-100, 90)
-            T[c]['intervals'].append(
-                (m, m+10)
-            )
-    
-    from pprint import pprint
-    #pprint(X)
-    #pprint(T)
-
-    print(variables, constraints)
-    for constraint in range(constraints):
-        Tij = T[constraint]
+    print(variables, len(T_all))
+    for constraint in range(len(T_all)):
+        Tij = T_all[constraint]
         print(Tij['i'], Tij['j'], len(Tij['intervals']), end=' ')
         for a, b in Tij['intervals']:
             print(a, b, end=' ')
@@ -74,4 +61,4 @@ def generate_problem(variables, constraints, intervals):
 
 if __name__ == '__main__':
     args = parse_args()
-    generate_problem(args.variables, args.constraints, args.intervals)
+    generate_problem(args.variables, args.constraint_probability, args.intervals)

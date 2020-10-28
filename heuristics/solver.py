@@ -45,7 +45,18 @@ def consistent(d_graph):
     return True
 
 def pick_constraint(all_constraints, unused_constraints_indices):
-    return list(unused_constraints_indices)[0]
+    least_intervals = unused_constraints_indices[0]
+    num = len(all_constraints[least_intervals]['intervals'])
+    for idx in unused_constraints_indices:
+        if len(all_constraints[idx]['intervals']) < num:
+            num = len(all_constraints[idx]['intervals'])
+            least_intervals = idx
+    
+    # return first unused:
+    #return list(unused_constraints_indices)[0]
+
+    # return constraint with least intervals on it
+    return least_intervals
 
 def backtrack(all_constraints, unused_constraints_indices, graph):
     global consistent_stps, dead_ends
