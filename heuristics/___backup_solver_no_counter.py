@@ -4,9 +4,6 @@ from pprint import pprint
 
 INF = 1e9
 
-consistent_stps = 0
-dead_ends = 0
-
 def print_min_sol(d_graph):
     for i in range(len(d_graph)):
         print(-d_graph[i][0], end=' ')
@@ -48,15 +45,10 @@ def pick_constraint(all_constraints, unused_constraints_indices):
     return list(unused_constraints_indices)[0]
 
 def backtrack(all_constraints, unused_constraints_indices, graph):
-    global consistent_stps, dead_ends
-
     if not unused_constraints_indices:
         d_graph = generate_d_graph(graph)
         if consistent(d_graph):
             print_min_sol(d_graph)
-            consistent_stps += 1
-        else:
-            dead_ends += 1
         return
 
     constr_id = pick_constraint(all_constraints, unused_constraints_indices)
@@ -71,8 +63,6 @@ def backtrack(all_constraints, unused_constraints_indices, graph):
         d_graph = generate_d_graph(graph)
         if consistent(d_graph):
             backtrack(all_constraints, unused_constraints_indices, graph)
-        else:
-            dead_ends += 1
     
         graph[i][j] = INF
         graph[j][i] = INF
@@ -90,10 +80,7 @@ if __name__ == '__main__':
                 'intervals': list(zip(intervals[::2], intervals[1::2])),
         })
 
+
     pprint(constraints)
     graph = discrete_graph(num_nodes)
     backtrack(constraints, [i for i in range(len(constraints))], graph)
-    print(
-        'dead ends:', dead_ends,
-        '\nconsistent stps:', consistent_stps,
-    )

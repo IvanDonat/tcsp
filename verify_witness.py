@@ -5,6 +5,7 @@ def verify_witness(X, C):
     for constraint in C:
         i = constraint['i']
         j = constraint['j']
+        if i == j: continue
 
         diff = X[j] - X[i]
 
