@@ -35,6 +35,25 @@ def generate_problem(variables, constraint_probability, max_intervals):
 
     visited_edges = set()    
 
+    for j in range(1, variables):
+        T_all.append({
+            'i': 0,
+            'j': j,
+            'intervals': [(-100, 100)]
+        })
+    
+    for i in range(1, variables):
+        for j in range(i+1, variables):
+            if uniform(0, 1) < constraint_probability:
+                T = {}
+                diff = X[j] - X[i]
+                T['i'] = i
+                T['j'] = j
+                T['intervals'] = []
+                for _ in range(randint(1, max_intervals)):
+                    m = randint(-100, 90)
+                    T['intervals'].append( (m, m+10) )
+                T_all.append(T)
 
     for i in range(variables):
         for j in range(i+1, variables):
