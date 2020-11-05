@@ -90,7 +90,6 @@ def backtrack(all_constraints, available_constraints, graph, pick_constraint, st
     return stats
 
 
-def solve(constraints, pick_constraint=lambda x: x[0]):
-    num_nodes = max(cr['j'] for cr in constraints) + 1
-    return backtrack(constraints, constraints, discrete_graph(num_nodes), pick_constraint)
+def solve(num_variables, constraints, pick_constraint=lambda x: x[0]):
+    return backtrack(constraints, constraints, discrete_graph(num_variables), pick_constraint)
      
