@@ -55,18 +55,19 @@ def pick_constraint(all_constraints, unused_constraints_indices):
     # return constraint with least intervals on it
     return least_intervals
 
-def backtrack(all_constraints, available_constraints, graph, pick_constraint, stats=None):
+def backtrack(all_constraints, available_constraints, graph, pick_constraint, stats=None, break_on_sat=False):
     if stats == None:
         stats = {'consistent': 0, 'dead': 0, 'total': 0}
         
     if not available_constraints:
         stats['total'] += 1
         d_graph = generate_d_graph(graph)
-        if consistent(d_graph):
+        cons = consistent(d_graph)
+        if cons:
             stats['consistent'] += 1
         else:
             stats['dead'] += 1
-        return stats
+        return stats, cons
 
     constr = pick_constraint(available_constraints)
     available_constraints.remove(constr)
@@ -79,7 +80,8 @@ def backtrack(all_constraints, available_constraints, graph, pick_constraint, st
 
         d_graph = generate_d_graph(graph)
         if consistent(d_graph):
-            backtrack(all_constraints, available_constraints, graph, pick_constraint, stats)
+            x = backtrack(all_constraints, available_constraints, graph, pick_constraint, stats, break_on_sat=break_on_sat)
+            if break_on_sat and x[1]: return stats, True
         else:
             stats['dead'] += 1
     
@@ -87,9 +89,38 @@ def backtrack(all_constraints, available_constraints, graph, pick_constraint, st
         graph[j][i] = INF
 
     available_constraints.append(constr)
-    return stats
+    return stats, False
 
 
-def solve(num_variables, constraints, pick_constraint=lambda x: x[0]):
-    return backtrack(constraints, constraints, discrete_graph(num_variables), pick_constraint)
+def solve(num_variables, constraints, pick_constraint=lambda x: x[0], break_on_sat=False):
+    return backtrack(constraints, constraints, discrete_graph(num_variables), pick_constraint, break_on_sat=break_on_sat)
      
+def solve_stp(num_variables, constraints):
+    """ only call this on simple temporal problems """
+    stats = {'consistent': 0, 'dead': 0, 'total': 0}
+    graph = discrete_graph(num_variables)
+    for constr in constraints:
+        interval = constr['intervals'][0]
+        i, j = constr['i'], constr['j']
+        graph[i][j] = interval[1]
+        graph[j][i] = -interval[0]
+        
+        stats['total'] += 1
+        d_graph = generate_d_graph(graph)
+        if consistent(d_graph):
+            continue
+        else:
+            stats['dead'] += 1
+            break
+            
+    if not stats['dead']:
+        stats['consistent'] = 1
+    
+    return stats
+        
+        
+        
+        
+        
+        
+        
