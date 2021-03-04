@@ -117,10 +117,3 @@ def solve_stp(num_variables, constraints):
         stats['consistent'] = 1
     
     return stats
-        
-        
-        
-        
-        
-        
-        
