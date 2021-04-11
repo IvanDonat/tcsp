@@ -141,6 +141,15 @@ def select_value_gbj(constraints, i, selection, latest):
             return
     
     selection[i] = None
+    
+def solve_stp(graph):
+    """
+    Given adjacency matrix solve simple temporal problem.
+    Returns (is consistent, particular solution).
+    """
+    
+    d_graph = generate_d_graph(graph)
+    return consistent(d_graph), get_min_sol(d_graph)
 
 def solve(constraints):
     """

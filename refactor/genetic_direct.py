@@ -138,7 +138,7 @@ def mutate(T, genes, mutation_chance, r):
 """
     
 
-def solve_random(T, r, iterations):
+def direct_random(T, r, iterations):
     """
     Direct random algorithm.
     
@@ -167,7 +167,7 @@ def solve_random(T, r, iterations):
     print('failed constraints:', best_gene_failed)
     
     
-def solve_walk(T, r, max_iterations, max_flips, pick_best_gene):
+def direct_walk(T, r, max_iterations, max_flips, pick_best_gene):
     """
     Direct walk-based algorithm.
     
@@ -206,7 +206,7 @@ def solve_walk(T, r, max_iterations, max_flips, pick_best_gene):
     print('failed constraints:', best_gene_failed)
     
         
-def solve_genetic(T, r,
+def direct_genetic(T, r,
             gene_pool_size,
             retainment_ratio,
             mutation_chance,
