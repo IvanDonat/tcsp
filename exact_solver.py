@@ -60,7 +60,8 @@ def get_min_sol(d_graph):
     
     return [-d_graph[i][0] for i in range(len(d_graph))]
 
-def backtrack(constraints):
+
+def backtrack(constraints, stats={}, verbose=False):
     """
     Perform a backtracking search in order to find a solution to a TCSP given by 'constraints'.
     Returns None or a particular valid assignment list.
@@ -68,24 +69,24 @@ def backtrack(constraints):
     
     i = 0
     selection = [None for _ in range(len(constraints))]
-    latest = [-1 for _ in range(len(constraints))]
     
     while 0 <= i < len(constraints):
-        select_value_gbj(constraints, i, selection, latest)
-        print(i)
+        stats['total'] += 1
+        select_value(constraints, i, selection)
         if selection[i] is None:
-            print('jumping', i, latest[i])
-            i = latest[i]
+            stats['dead'] += 1
+            stats['backjump'] += 1
+            i -= 1
         else:
             i = i + 1
             if i < len(constraints):
                 selection[i] = None
-                latest[i] = -1
     
     if i == -1:
-        print('UNSAT')
+        if verbose: print('UNSAT')
         return None
     else:
+        stats['consistent'] = 1
         # turn selection into minimal working example, and return it
         graph = discrete_graph(max([max(t['i'], t['j']) for t in constraints]) + 1)
         for k, constr in enumerate(constraints):
@@ -94,7 +95,86 @@ def backtrack(constraints):
         d_graph = generate_d_graph(graph)
         return get_min_sol(d_graph)
 
-def max_k_consistent(constraints, i, selection, latest):
+def select_value(constraints, i, selection):
+    """
+    Make an interval selection at index i.
+    Also updates the list latest to be used for backjumping.
+    """
+    
+    intervals = constraints[i]['intervals']
+    
+    if selection[i] is None:
+        selection[i] = -1
+    
+    while selection[i] + 1 < len(intervals):
+        selection[i] += 1
+        if consistent_selection(constraints, i, selection):
+            return
+    
+    selection[i] = None
+    
+   
+def consistent_selection(constraints, i, selection):
+    """
+    Compute whether the assignment selection assigned only at a_j where j <= latest or i == j is consistent.
+    """
+    
+    graph = discrete_graph(max([max(t['i'], t['j']) for t in constraints]) + 1)
+    
+    # x_i = a
+    constr = constraints[i]
+    graph[constr['i']][constr['j']] = constr['intervals'][selection[i]][1]
+    graph[constr['j']][constr['i']] = -constr['intervals'][selection[i]][0]
+    
+    for k in range(i):
+        # a_k-tuple graph
+        constr = constraints[k]
+        graph[constr['i']][constr['j']] = constr['intervals'][selection[k]][1]
+        graph[constr['j']][constr['i']] = -constr['intervals'][selection[k]][0]
+        
+    d_graph = generate_d_graph(graph)
+    return consistent(d_graph)
+
+    
+def backtrack_gbj(constraints, stats={}, verbose=False):
+    """
+    Perform a backtracking with Gashnic backjumping search in order to find a solution to a TCSP given by 'constraints'.
+    Returns None or a particular valid assignment list.
+    """
+    
+    i = 0
+    selection = [None for _ in range(len(constraints))]
+    latest = [-1 for _ in range(len(constraints))]
+    
+    while 0 <= i < len(constraints):
+        stats['total'] += 1
+        select_value_gbj(constraints, i, selection, latest)
+        if verbose: print(i)
+        if selection[i] is None:
+            stats['dead'] += 1
+            stats['backjump'] += i - latest[i]
+            if verbose: print('jumping', i, latest[i])
+            i = latest[i]
+        else:
+            i = i + 1
+            if i < len(constraints):
+                selection[i] = None
+                latest[i] = -1
+    
+    if i == -1:
+        if verbose: print('UNSAT')
+        return None
+    else:
+        stats['consistent'] = 1
+        # turn selection into minimal working example, and return it
+        graph = discrete_graph(max([max(t['i'], t['j']) for t in constraints]) + 1)
+        for k, constr in enumerate(constraints):
+            graph[constr['i']][constr['j']] = constr['intervals'][selection[k]][1]
+            graph[constr['j']][constr['i']] = -constr['intervals'][selection[k]][0]
+        d_graph = generate_d_graph(graph)
+        return get_min_sol(d_graph)    
+    
+def max_k_consistent_gbj(constraints, i, selection, latest):
     """
     Compute whether the assignment selection assigned only at a_j where j <= latest or i == j is consistent.
     """
@@ -122,7 +202,6 @@ def max_k_consistent(constraints, i, selection, latest):
             k += 1
     
     return True
-            
 
 def select_value_gbj(constraints, i, selection, latest):
     """
@@ -137,7 +216,7 @@ def select_value_gbj(constraints, i, selection, latest):
     
     while selection[i] + 1 < len(intervals):
         selection[i] += 1
-        if max_k_consistent(constraints, i, selection, latest):
+        if max_k_consistent_gbj(constraints, i, selection, latest):
             return
     
     selection[i] = None
@@ -151,13 +230,22 @@ def solve_stp(graph):
     d_graph = generate_d_graph(graph)
     return consistent(d_graph), get_min_sol(d_graph)
 
-def solve(constraints):
+def solve(constraints, backjump=True, stats={}, verbose=False):
     """
     Solve the general TCSP given by 'constraints'.
     Returns a valid assignment X or None.
+    Fills in the "stats" dict if provided.
     """
+    
+    stats['total'] = 0 # total nodes/intervals searched
+    stats['consistent'] = 0 # number of consistent ends found
+    stats['dead'] = 0 # number of dead ends
+    stats['backjump'] = 0 # sum of all backjump distances, divide by deadends to find avg backjump length
     
     from copy import deepcopy
     c2 = deepcopy(constraints)
     c2.sort(key=lambda l: len(l['intervals']))
-    return backtrack(c2)
+    if backjump:
+        return backtrack_gbj(c2, stats=stats, verbose=verbose)
+    else:
+        return backtrack(c2, stats=stats, verbose=verbose)
