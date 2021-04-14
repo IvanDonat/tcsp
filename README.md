@@ -28,27 +28,25 @@ We associate such a problem with a `distance graph` `(V, E_d)`, where `V`
 consists of the same nodes as the constraint network, and each edge is
 labelled by a weight `a_{ij}`, representing `X_j - X_i <= a_{ij}`.
 
-## Input
-
-The input to the solver program is given by `stdin`.
-First line should contain the number of nodes (we will label them `0 <= i < n`)
-and the number of edges.
-For simplicity we assume `X_0 = 0`.
-
-Each following line should be in the format `i j n (a_{i} b_{i})^n`.
-In other words, the `i -> j`, followed by a number of intervals,
-and then the intervals in order.
-
-For an STP, simply say `n=1`.
-
 ## Problem Generator
 
-`generate_problems.py` is a Python 3 script to generate random problems.
+`problem_generator.py` is a Python 3 module to generate random problems.
 
 ## Verify Witness
 
-`verify_witness.py` is a program that takes in a TCSP and an assignment to
+`verifier.py` is a module that takes in a TCSP and an assignment to
 the variables, and verifies whether the assignment is a solution to the TCSP.
 
-The input consists of the input as a TCSP, followed by an additonal line
-consisting of `n` integers, specifying `X = (X_0, X_1, ..., X_n)`.
+## Preprocessing
+
+`preprocessing.py` contains the implementation of some constraint propagation
+preprocessing algorithms.
+
+## Solver
+
+`exact_solver.py` has a general TCSP solver implementation.
+
+## Genetic
+
+`genetic_direct.py` and `genetic_meta.py` contain random, walking, and genetic
+algorithms for solving TCSP.
