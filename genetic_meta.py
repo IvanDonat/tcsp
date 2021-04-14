@@ -6,7 +6,7 @@ from verifier import verify_witness
 from exact_solver import consistent
 from exact_solver import discrete_graph
 from exact_solver import generate_d_graph
-from exact_solver import get_min_sol
+from exact_solver import get_min_sol, get_middles_sol
 from exact_solver import solve_stp
 
 def random_gene(T):
@@ -20,7 +20,7 @@ def random_gene(T):
     gene = [interval_selection, discrete_graph(num_variables+1), None]
     update_graph(gene, T)
     d_graph = generate_d_graph(gene[1]) # costly op.
-    failed = verify_witness(get_min_sol(d_graph), T)
+    failed = verify_witness(get_middles_sol(d_graph), T)
     gene[2] = failed
     
     return gene
@@ -32,7 +32,7 @@ def gene_to_witness(gene, T):
     
     update_graph(gene, T)
     d_graph = generate_d_graph(gene[1])
-    return get_min_sol(d_graph)
+    return get_middles_sol(d_graph)
 
 def update_graph(gene, T):
     """
@@ -85,6 +85,8 @@ def walk_gene(gene, T):
         candidate_indices
     ))
     
+    if not candidate_indices: return
+    
     idx = choice(candidate_indices)
     gene[0][idx] = randint(0, len(T[idx]['intervals'])-1)
     update_graph_at_constraint(gene, idx, T)
@@ -105,7 +107,7 @@ def evaluate(genes, T):
     
     for g in genes:
         d_graph = generate_d_graph(g[1]) # costly op.
-        g[2] = verify_witness(get_min_sol(d_graph), T)
+        g[2] = verify_witness(get_middles_sol(d_graph), T)
     return genes
 
 def fitness(gene, T):

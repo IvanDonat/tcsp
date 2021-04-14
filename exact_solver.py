@@ -60,6 +60,13 @@ def get_min_sol(d_graph):
     
     return [-d_graph[i][0] for i in range(len(d_graph))]
 
+def get_middles_sol(d_graph):
+    """
+    Given a consistent d_graph, picks the middle feasible values for each.
+    (I don't have proof this will be consistent.
+     Used in genetic meta algorithms so it doesn't always pick the very edge, as that is suboptimal.)
+    """
+    return [(-d_graph[i][0] + d_graph[0][i])/2 for i in range(len(d_graph))]
 
 def backtrack(constraints, stats={}, verbose=False):
     """

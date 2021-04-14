@@ -9,7 +9,8 @@ def intersect(I, J):
     # TODO fix this merge, experimental
     return cleanup_intervals([
         [max(first[0], second[0]), min(first[1], second[1])] 
-          for first in I for second in J  if max(first[0], second[0]) <= min(first[1], second[1])
+        for first in I for second in J
+        if max(first[0], second[0]) <= min(first[1], second[1])
     ])
     
 def compose(I, J):
