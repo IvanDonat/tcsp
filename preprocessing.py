@@ -39,7 +39,7 @@ def cleanup_intervals(I):
     return [(a, b) for a, b in ret]
 
     
-def PC_1(T):
+def PC_1(T, verbose=False):
     """
     Applies the PC-1 algorithm onto the constraints given by T.
     Returns 
@@ -80,7 +80,7 @@ def PC_1(T):
                             changed = True
 
                     if not mat[i][j]:
-                        print('Unsatisfiability deduced at the PC-1 level.')
+                        if verbose: print('Unsatisfiability deduced at the PC-1 level.')
                         return None
     
     # convert back to standard form used elsewhere:
