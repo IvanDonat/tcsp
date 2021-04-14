@@ -163,7 +163,7 @@ def mutate(T, genes, mutation_chance):
 """
     
     
-def meta_random(T, iterations=50):
+def meta_random(T, iterations=50, verbose=False):
     """
     Meta random algorithm.
     
@@ -185,16 +185,17 @@ def meta_random(T, iterations=50):
         
         if len(gene_failed) == 0:
             break
-        
-    print(f'num iterations: {i+1}')
-    print('best gene:', best_gene)
-    print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
-    print('failed constraints:', best_gene_failed)
+           
+    if verbose:
+        print(f'num iterations: {i+1}')
+        print('best gene:', best_gene)
+        print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
+        print('failed constraints:', best_gene_failed)
     
-    return best_gene
+    return best_gene[0], best_gene_failed, gene_to_witness(best_gene, T)
     
     
-def meta_walk(T, max_iterations, max_flips):
+def meta_walk(T, max_iterations, max_flips, verbose=False):
     """
     Meta walk algorithm.
     
@@ -229,19 +230,21 @@ def meta_walk(T, max_iterations, max_flips):
                 break
                 
             walk_gene(gene, T)
-        
-    print(f'num flips: {i+1}, num iterations: {j+1}')
-    print('best gene:', best_gene)
-    print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
-    print('failed constraints:', best_gene_failed)
     
-    return best_gene
+    if verbose:
+        print(f'num flips: {i+1}, num iterations: {j+1}')
+        print('best gene:', best_gene)
+        print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
+        print('failed constraints:', best_gene_failed)
+    
+    return best_gene[0], best_gene_failed
 
 def meta_genetic(T,
             gene_pool_size,
             retainment_ratio,
             mutation_chance,
-            max_iterations):
+            max_iterations,
+            verbose=False):
     
     """
     Meta genetic algorithm.
@@ -265,8 +268,10 @@ def meta_genetic(T,
     genes = evaluate(genes, T)
     best_gene = select(genes, 1, T)[0] # to sort genes such that first is best
     best_gene_failed = best_gene[2]
-    print('best gene:', best_gene[0])
-    print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
-    print('failed constraints:', best_gene_failed)
     
-    return best_gene
+    if verbose:
+        print('best gene:', best_gene[0])
+        print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
+        print('failed constraints:', best_gene_failed)
+
+    return best_gene[0], best_gene_failed

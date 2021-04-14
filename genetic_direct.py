@@ -138,7 +138,7 @@ def mutate(T, genes, mutation_chance, r):
 """
     
 
-def direct_random(T, r, iterations):
+def direct_random(T, r, iterations, verbose=False):
     """
     Direct random algorithm.
     
@@ -161,13 +161,16 @@ def direct_random(T, r, iterations):
         if len(gene_failed) == 0:
             break
             
-    print(f'num iterations: {i+1}')
-    print('best gene:', best_gene)
-    print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
-    print('failed constraints:', best_gene_failed)
+    if verbose:
+        print(f'num iterations: {i+1}')
+        print('best gene:', best_gene)
+        print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
+        print('failed constraints:', best_gene_failed)
+    
+    return best_gene, best_gene_failed
     
     
-def direct_walk(T, r, max_iterations, max_flips, pick_best_gene):
+def direct_walk(T, r, max_iterations, max_flips, pick_best_gene, verbose=False):
     """
     Direct walk-based algorithm.
     
@@ -200,17 +203,21 @@ def direct_walk(T, r, max_iterations, max_flips, pick_best_gene):
         # necessary for double break after flips loop
         if len(gene_failed) == 0: break
     
-    print(f'num iterations: {i+1}')
-    print('best gene:', best_gene)
-    print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
-    print('failed constraints:', best_gene_failed)
+    if verbose:
+        print(f'num iterations: {i+1}')
+        print('best gene:', best_gene)
+        print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
+        print('failed constraints:', best_gene_failed)
+    
+    return best_gene, best_gene_failed
     
         
 def direct_genetic(T, r,
             gene_pool_size,
             retainment_ratio,
             mutation_chance,
-            max_iterations):
+            max_iterations,
+            verbose=False):
     
     """
     Direct genetic algorithm.
@@ -233,6 +240,10 @@ def direct_genetic(T, r,
     
     best_gene = select(genes, 1, T)[0] # to sort genes such that first is best
     best_gene_failed = verify_witness(best_gene, T)
-    print('best gene:', best_gene)
-    print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
-    print('failed constraints:', best_gene_failed)
+    
+    if verbose:
+        print('best gene:', best_gene)
+        print('constraints failed:', len(best_gene_failed), 'out of:', len(T)) 
+        print('failed constraints:', best_gene_failed)
+
+    return best_gene, best_gene_failed
